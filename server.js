@@ -3,19 +3,26 @@ require("dotenv").config();
 
 const logger = require("./src/middleware/logger.middleware");
 const errorHandler = require("./src/middleware/error.middleware");
+const requestTime = require("./src/middleware/requestTime.middleware");
 
 // import routes
 const taskRoutes = require("./src/routes/task.routes");
 
 const app = express();
 
-// middlewares 
+// built-in middlewares 
 app.use(express.json());
+
+// custom middlewares 
 app.use(logger);
+app.use(requestTime);
 
 // routes 
 app.get("/", (req, res) => {
-  res.json({ message: "Task Productivity API is running!" });
+  res.json({ 
+    message: "Task Productivity API is running!",
+    time: req.requestTime,
+  });
 });
 
 // task routes 
