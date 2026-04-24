@@ -9,7 +9,8 @@ describe("Task API", () => {
       .post("/api/tasks")
       .send({
         title: "Test task",
-        priority: "high"
+        priority: "high",
+        userId: 1
       });
 
     expect(res.statusCode).toBe(201);
