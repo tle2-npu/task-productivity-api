@@ -10,6 +10,13 @@ const taskRoutes = require("./src/routes/task.routes");
 
 const app = express();
 
+// db connection
+const { sequelize } = require("./src/models");
+
+sequelize.authenticate()
+  .then(() => console.log("DB connected"))
+  .catch(err => console.error("DB error:", err.message));
+
 // built-in middlewares 
 app.use(express.json());
 

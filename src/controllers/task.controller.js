@@ -11,7 +11,7 @@ const getAllTasks = async (req, res) => {
 };
 
 // GET task by ID
-const getTaskById = async (req, res) => {
+const getTaskById = async (req, res, next) => {
   try {
     const task = await Task.findByPk(req.params.id);
 
@@ -26,8 +26,12 @@ const getTaskById = async (req, res) => {
 };
 
 // CREATE task
-const createTask = async (req, res) => {
+const createTask = async (req, res, next) => {
   try {
+    if (!req.body.title) {
+      return res.status(400).json({ message: "Title is required" });
+    }
+
     const task = await Task.create(req.body);
     res.status(201).json(task);
   } catch (error) {
