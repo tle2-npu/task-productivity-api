@@ -5,7 +5,7 @@ const seedDatabase = async () => {
   try {
     await sequelize.sync({ force: true }); // reset DB
 
-    console.log("🔄 Database reset...");
+    console.log("Database reset...");
 
     // USERS
     const hashedPassword = await bcrypt.hash("password123", 10);
