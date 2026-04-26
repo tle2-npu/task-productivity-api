@@ -1,12 +1,15 @@
 const { Task } = require("../models");
 
-// GET all tasks
-const getAllTasks = async (req, res) => {
+// GET all tasks (user only)
+const getAllTasks = async (req, res, next) => {
   try {
-    const tasks = await Task.findAll();
-    res.status(200).json(tasks);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+    const tasks = await Task.findAll({
+      where: { userId: req.user.id }
+    });
+
+    res.json(tasks);
+  } catch (err) {
+    next(err);
   }
 };
 
@@ -32,10 +35,14 @@ const createTask = async (req, res, next) => {
       return res.status(400).json({ message: "Title is required" });
     }
 
-    const task = await Task.create(req.body);
+    const task = await Task.create({
+      ...req.body,
+      userId: req.user.id
+    });
+
     res.status(201).json(task);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
+  } catch (err) {
+    next(err);
   }
 };
 

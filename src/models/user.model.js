@@ -28,6 +28,16 @@ const User = sequelize.define("User", {
       isEmail: true,
     },
   },
+  // hashed password for authentication
+  password: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  // role for authorization 
+  role: {
+    type: DataTypes.STRING,
+    defaultValue: "user" // user | admin
+  }
 });
 
 module.exports = User;
