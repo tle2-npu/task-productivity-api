@@ -54,6 +54,11 @@ const authMiddleware = (req, res, next) => {
   }
 };
 
+// root endpoint
+app.get("/", (req, res) => {
+  res.json({ message: "Task Productivity API is running!" });
+});
+
 // task routes (protected)
 app.use("/api/tasks", authMiddleware, taskRoutes);
 
@@ -114,7 +119,7 @@ app.post("/api/login", async (req, res, next) => {
     // create JWT token
     const token = jwt.sign(
       {
-        id: user.id,
+        id: user.userId,
         email: user.email,
         role: user.role
       },
@@ -126,7 +131,7 @@ app.post("/api/login", async (req, res, next) => {
       message: "Login successful",
       token,
       user: {
-        id: user.id,
+        id: user.userId,
         email: user.email,
         role: user.role
       }

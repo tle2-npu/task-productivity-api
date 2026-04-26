@@ -3,6 +3,9 @@ const router = express.Router();
 
 const taskController = require("../controllers/task.controller");
 
+const { isOwnerOrAdmin } = require("../middleware/role.middleware");
+const { Task } = require("../models");
+
 // GET all tasks
 router.get("/", taskController.getAllTasks);
 
@@ -13,9 +16,8 @@ router.get("/:id", taskController.getTaskById);
 router.post("/", taskController.createTask);
 
 // UPDATE task
-router.put("/:id", taskController.updateTask);
+router.put("/:id", isOwnerOrAdmin(Task), taskController.updateTask);
 
 // DELETE task
-router.delete("/:id", taskController.deleteTask);
-
+router.delete("/:id", isOwnerOrAdmin(Task), taskController.deleteTask);
 module.exports = router;

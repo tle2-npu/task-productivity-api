@@ -1,4 +1,4 @@
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const { sequelize, User, Task, Session } = require("../models");
 
 const seedDatabase = async () => {
@@ -16,12 +16,14 @@ const seedDatabase = async () => {
         age: 25,
         email: "alice@test.com",
         password: hashedPassword,
+        role: "user"
       },
       {
         name: "Bobby Brown",
         age: 30,
         email: "bob@test.com",
         password: hashedPassword,
+        role: "admin"
       },
     ], { returning: true });
 
