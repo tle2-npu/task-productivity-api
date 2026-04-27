@@ -6,12 +6,13 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 // database models
-const { sequelize, User } = require("./src/models");
+const { sequelize, User, Task } = require("./src/models");
 
 // custom middleware
 const logger = require("./src/middleware/logger.middleware");
 const errorHandler = require("./src/middleware/error.middleware");
 const requestTime = require("./src/middleware/requestTime.middleware");
+const authMiddleware = require("./src/middleware/auth.middleware");
 
 // import routes
 const taskRoutes = require("./src/routes/task.routes");
@@ -31,30 +32,7 @@ app.use(express.json());
 app.use(logger);
 app.use(requestTime);
 
-// auth middleware
-const authMiddleware = (req, res, next) => {
-  const authHeader = req.headers.authorization;
-
-  // check token exists
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return res.status(401).json({ message: "No token provided" });
-  }
-
-  // extract token
-  const token = authHeader.split(" ")[1];
-
-  try {
-    // verify token using secret key
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    // attach user info to request
-    req.user = decoded;
-    next();
-  } catch (err) {
-    return res.status(401).json({ message: "Invalid or expired token" });
-  }
-};
-
-// root endpoint
+// root route
 app.get("/", (req, res) => {
   res.json({ message: "Task Productivity API is running!" });
 });
@@ -69,7 +47,6 @@ app.post("/api/register", async (req, res, next) => {
 
     // check duplicate email
     const existingUser = await User.findOne({ where: { email } });
-
     if (existingUser) {
       return res.status(400).json({ message: "Email already exists" });
     }
@@ -80,7 +57,8 @@ app.post("/api/register", async (req, res, next) => {
     const user = await User.create({
       name,
       email,
-      password: hashedPassword
+      password: hashedPassword,
+      role: "user"
     });
 
     res.status(201).json({
@@ -88,7 +66,8 @@ app.post("/api/register", async (req, res, next) => {
       user: {
         id: user.userId,
         name: user.name,
-        email: user.email
+        email: user.email,
+        role: user.role
       }
     });
 
@@ -147,6 +126,31 @@ app.post("/api/logout", (req, res) => {
   res.json({
     message: "Logout successful (client removes token)"
   });
+});
+
+// GET tasks by user (relationship)
+app.get("/api/users/:id/tasks", authMiddleware, async (req, res, next) => {
+  try {
+    const userId = parseInt(req.params.id);
+
+    if (req.user.role !== "admin" && req.user.id !== userId) {
+      return res.status(403).json({
+        message: "Access denied"
+      });
+    }
+
+    const tasks = await Task.findAll({
+      where: { userId }
+    });
+
+    res.json({
+      userId,
+      tasks
+    });
+
+  } catch (err) {
+    next(err);
+  }
 });
 
 // error middleware

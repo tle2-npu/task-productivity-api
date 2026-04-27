@@ -1,24 +1,27 @@
 const { Task } = require("../models");
+const { Op } = require("sequelize");
 
 // GET all tasks 
 const getAllTasks = async (req, res, next) => {
   try {
-    let tasks;
+    const { search } = req.query;
 
-    // admin sees all
-    if (req.user.role === "admin") {
-      tasks = await Task.findAll();
-    } 
-    // user only sees their own tasks
-    else {
-      tasks = await Task.findAll({
-        where: { userId: req.user.id }
-      });
+    const where = {
+      userId: req.user.id
+    };
+
+    // add search feature
+    if (search) {
+      where.title = {
+        [Op.like]: `%${search}%`
+      };
     }
+
+    const tasks = await Task.findAll({ where });
 
     res.json(tasks);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    next(error);
   }
 };
 
