@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require("cors");
 require("dotenv").config();
 
 // security libraries
@@ -20,10 +21,16 @@ const taskRoutes = require("./src/routes/task.routes");
 const app = express();
 
 // db connection
-sequelize
-  .authenticate()
-  .then(() => console.log("DB connected"))
+sequelize.authenticate()
+  .then(() => {
+    console.log("DB connected");
+    return sequelize.sync();
+  })
+  .then(() => console.log("Database synced"))
   .catch(err => console.error("DB error:", err.message));
+
+// enable CORS for production
+app.use(cors());
 
 // built-in middlewares (parse JSON request body)
 app.use(express.json());
@@ -133,7 +140,7 @@ app.get("/api/users/:id/tasks", authMiddleware, async (req, res, next) => {
   try {
     const userId = parseInt(req.params.id);
 
-    if (req.user.role !== "admin" && req.user.id !== userId) {
+    if (req.user.role !== "admin" && Number(req.user.id) !== userId) {
       return res.status(403).json({
         message: "Access denied"
       });
