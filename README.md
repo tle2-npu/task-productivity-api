@@ -275,7 +275,6 @@ Tests include:
 - JWT Authentication
 - Role-Based Access Control (RBAC)
 - Task CRUD system
-- Search functionality
 - User-task relationships
 - Sequelize ORM with SQLite
 - Middleware system (logging, auth, error handling)

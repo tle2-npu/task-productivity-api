@@ -6,9 +6,12 @@ const getAllTasks = async (req, res, next) => {
   try {
     const { search } = req.query;
 
-    const where = {
-      userId: req.user.id
-    };
+    const where = {};
+
+    // ONLY apply user filter if NOT admin
+    if (req.user.role !== "admin") {
+      where.userId = req.user.id;
+    }
 
     // add search feature
     if (search) {
